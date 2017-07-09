@@ -12,6 +12,7 @@ const traversed = L.traversed
 const traverseOf = L.traverseOf
 const from = L.from
 const objIpair = L.objIpair
+const folding = L.folding
 const foldMapOf = L.foldMapOf
 const anyOf = L.anyOf
 const sumOf = L.sumOf
@@ -145,6 +146,28 @@ describe("Lenses", function() {
   })
 
   describe("Folds", function() {
+    it('folding lifts Foldable-returning operations', function() {
+      var tail = listOf(folding(R.tail))
+      var res = tail([1, 2, 3, 4])
+      assert.deepEqual(res, [2, 3, 4])
+    })
+
+    it('works with sumOf', function() {
+      var tail = sumOf(folding(R.tail))
+      var res = tail([1, 2, 3, 4])
+      assert.equal(res, 9)
+    })
+
+    it('works with anyOf', function() {
+      var any = anyOf(folding(R.tail))
+      var res = any(function(x) { return x < 2 }, [1, 2, 3, 4])
+      assert.equal(res, false)
+    })
+
+    it('works with an empty list', function() {
+      var res = listOf(folding(R.identity), [])
+      assert.deepEqual(res, [])
+    })
 
     it('foldMapOf(traversed) == foldMap', function() {
       var foldMap = foldMapOf(traversed)
